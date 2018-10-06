@@ -12,10 +12,18 @@ class ArtistController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+     public function __construct()
+     {
+         $this->middleware('auth');
+     }
+
     public function index()
     {
-        $artists = Artist::all();
-        return view('artists/lists',['artists'=>$artists]);
+        $artists = Artist::paginate(3);
+        //return view('artists/lists',['artists'=>$artists]);
+        return view('artists/lists',compact('artists'));
+
     }
 
     /**
@@ -36,11 +44,16 @@ class ArtistController extends Controller
      */
     public function store(Request $request)
     {
+        // Create a new artist using the request data
         $artist = new Artist;
+
         $artist->name = $request->name;
         $artist->gender = $request->gender;
         $artist->city = $request->city;
+
+        // save it to the database
         $artist->save();
+
         return redirect('artists');
     }
 
@@ -61,9 +74,9 @@ class ArtistController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Artist $artist)
     {
-        //
+        return view("artists/edit",compact('artist'));
     }
 
     /**
@@ -73,9 +86,18 @@ class ArtistController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Artist $artist)
     {
-        //
+      $artist = Artist::find($artist->id);
+
+      $artist->name = $request->name;
+      $artist->gender = $request->gender;
+      $artist->city = $request->city;
+
+      // save it to the database
+      $artist->save();
+
+      return redirect('artists');
     }
 
     /**
@@ -84,8 +106,9 @@ class ArtistController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Artist $artist)
     {
-        //
+        Artist::destroy($artist->id);
+        return redirect("artists");
     }
 }
